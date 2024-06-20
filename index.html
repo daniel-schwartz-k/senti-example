@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat Sentiment</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <style>
+    .container {
+      margin: 20px 50px 50px 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+    .title {
+      margin: 0;
+    }
+    h1 {
+      font-size: 40px;
+      font-weight: 500;
+      color: #008000;
+    }
+  </style>
+</head>
+<body>
+  <script>window.Data = { sentiments: [{"rawSentimentSum":1.7000000000000002,"totalSentiment":0.8500000000000001,"totalMessageCount":2,"rawMessageCount":2,"_score":1667224800000},{"rawMessageCount":0,"_score":1667224860000},{"rawMessageCount":0,"_score":1667224920000},{"rawSentimentSum":2.4000000000000004,"totalSentiment":0.8000000000000002,"totalMessageCount":3,"rawMessageCount":3,"_score":1667224980000},{"rawMessageCount":0,"_score":1667225040000},{"rawSentimentSum":0.9,"totalSentiment":0.9,"totalMessageCount":1,"rawMessageCount":1,"_score":1667225100000},{"rawMessageCount":0,"_score":1667225160000},{"rawMessageCount":0,"_score":1667225220000},{"rawSentimentSum":0,"totalSentiment":0,"totalMessageCount":1,"rawMessageCount":1,"_score":1667225280000},{"rawMessageCount":0,"_score":1667225340000},{"rawMessageCount":0,"_score":1667225400000},{"rawSentimentSum":0.8,"totalSentiment":0.8,"totalMessageCount":1,"rawMessageCount":1,"_score":1667225460000},{"rawSentimentSum":0,"totalSentiment":0.4,"totalMessageCount":2,"rawMessageCount":1,"_score":1667225520000},{"rawSentimentSum":0,"totalSentiment":0.13333333333333333,"totalMessageCount":3,"rawMessageCount":1,"_score":1667225580000},{"rawMessageCount":0,"_score":1667225640000},{"rawSentimentSum":0.8,"totalSentiment":0.8,"totalMessageCount":1,"rawMessageCount":1,"_score":1667225760000},{"rawSentimentSum":0.8,"totalSentiment":0.8,"totalMessageCount":2,"rawMessageCount":1,"_score":1667225820000},{"rawMessageCount":0,"_score":1667225880000},{"rawMessageCount":0,"_score":1667225940000},{"rawSentimentSum":0.8,"totalSentiment":0.8,"totalMessageCount":1,"rawMessageCount":1,"_score":1667226000000},{"rawMessageCount":0,"_score":1667226060000},{"rawMessageCount":0,"_score":1667226120000},{"rawMessageCount":0,"_score":1667226180000},{"rawSentimentSum":0.5,"totalSentiment":0.16666666666666666,"totalMessageCount":3,"rawMessageCount":3,"_score":1667226240000},{"rawMessageCount":0,"_score":1667226300000},{"rawSentimentSum":0.8,"totalSentiment":0.8,"totalMessageCount":1,"rawMessageCount":1,"_score":1667226360000},{"rawSentimentSum":0.8,"totalSentiment":0.8,"totalMessageCount":2,"rawMessageCount":1,"_score":1667226420000},{"rawSentimentSum":0.8,"totalSentiment":0.5333333333333333,"totalMessageCount":3,"rawMessageCount":1,"_score":1667226480000},{"rawMessageCount":0,"_score":1667226540000},{"rawMessageCount":0,"_score":1667226600000},{"rawSentimentSum":0,"totalSentiment":0,"totalMessageCount":1,"rawMessageCount":1,"_score":1667226660000},{"rawSentimentSum":1.4,"totalSentiment":0.11666666666666665,"totalMessageCount":4,"rawMessageCount":3,"_score":1667226720000},{"rawMessageCount":0,"_score":1667226780000},{"rawMessageCount":0,"_score":1667226840000},{"rawMessageCount":0,"_score":1667226900000},{"rawSentimentSum":0,"totalSentiment":0,"totalMessageCount":1,"rawMessageCount":1,"_score":1667226960000},{"rawSentimentSum":0,"totalSentiment":0,"totalMessageCount":2,"rawMessageCount":1,"_score":1667227020000},{"rawSentimentSum":0.5,"totalSentiment":0.0625,"totalMessageCount":4,"rawMessageCount":2,"_score":1667227080000},{"rawMessageCount":0,"_score":1667227140000},{"rawSentimentSum":0,"totalSentiment":0,"totalMessageCount":1,"rawMessageCount":1,"_score":1667227200000},{"rawMessageCount":0,"_score":1667227260000},{"rawMessageCount":0,"_score":1667227320000},{"rawMessageCount":0,"_score":1667227380000},{"rawSentimentSum":0.8,"totalSentiment":0.8,"totalMessageCount":1,"rawMessageCount":1,"_score":1667227440000},{"rawMessageCount":0,"_score":1667227500000},{"rawMessageCount":0,"_score":1667227560000},{"rawMessageCount":0,"_score":1667227620000},{"rawMessageCount":0,"_score":1667227680000},{"rawSentimentSum":0.8,"totalSentiment":0.4,"totalMessageCount":2,"rawMessageCount":2,"_score":1667227740000},{"rawSentimentSum":0,"totalSentiment":0.1,"totalMessageCount":4,"rawMessageCount":2,"_score":1667227800000},{"rawMessageCount":0,"_score":1667227860000},{"rawSentimentSum":0.8,"totalSentiment":0.4,"totalMessageCount":2,"rawMessageCount":2,"_score":1667227920000},{"rawSentimentSum":0,"totalSentiment":0.13333333333333333,"totalMessageCount":3,"rawMessageCount":1,"_score":1667227980000},{"rawSentimentSum":1,"totalSentiment":0.0738095238095238,"totalMessageCount":7,"rawMessageCount":4,"_score":1667228040000},{"rawSentimentSum":0,"totalSentiment":0.03333333333333333,"totalMessageCount":6,"rawMessageCount":1,"_score":1667228100000},{"rawSentimentSum":0,"totalSentiment":0.03333333333333333,"totalMessageCount":6,"rawMessageCount":1,"_score":1667228160000},{"rawMessageCount":0,"_score":1667228280000},{"rawSentimentSum":0,"totalSentiment":0,"totalMessageCount":1,"rawMessageCount":1,"_score":1667228340000},{"rawSentimentSum":0,"totalSentiment":0,"totalMessageCount":2,"rawMessageCount":1,"_score":1667228400000},{"rawSentimentSum":0,"totalSentiment":0,"totalMessageCount":4,"rawMessageCount":2,"_score":1667228460000},{"rawMessageCount":0,"_score":1667228520000},{"rawMessageCount":0,"_score":1667228580000},{"rawMessageCount":0,"_score":1667228640000},{"rawMessageCount":0,"_score":1667228700000},{"rawMessageCount":0,"_score":1667228760000},{"rawMessageCount":0,"_score":1667228820000},{"rawMessageCount":0,"_score":1667228880000},{"rawMessageCount":0,"_score":1667228940000},{"rawSentimentSum":0.8,"totalSentiment":0.8,"totalMessageCount":1,"rawMessageCount":1,"_score":1667229000000},{"rawSentimentSum":0.8,"totalSentiment":0.8,"totalMessageCount":2,"rawMessageCount":1,"_score":1667229060000},{"rawSentimentSum":0,"totalSentiment":0.26666666666666666,"totalMessageCount":3,"rawMessageCount":1,"_score":1667229120000},{"rawSentimentSum":0.7,"totalSentiment":0.36666666666666664,"totalMessageCount":3,"rawMessageCount":1,"_score":1667229180000},{"rawMessageCount":0,"_score":1667229240000},{"rawSentimentSum":1,"totalSentiment":1,"totalMessageCount":1,"rawMessageCount":1,"_score":1667229300000},{"rawSentimentSum":0.9,"totalSentiment":0.95,"totalMessageCount":2,"rawMessageCount":1,"_score":1667229360000},{"rawSentimentSum":1.5,"totalSentiment":0.425,"totalMessageCount":4,"rawMessageCount":2,"_score":1667229420000},{"rawMessageCount":0,"_score":1667229480000},{"rawMessageCount":0,"_score":1667229540000},{"rawMessageCount":0,"_score":1667229600000},{"rawMessageCount":0,"_score":1667229660000},{"rawMessageCount":0,"_score":1667229720000},{"rawMessageCount":0,"_score":1667229780000},{"rawMessageCount":0,"_score":1667229840000},{"rawMessageCount":0,"_score":1667229900000},{"rawMessageCount":0,"_score":1667229960000},{"rawMessageCount":0,"_score":1667230020000},{"rawMessageCount":0,"_score":1667230080000},{"rawMessageCount":0,"_score":1667230140000},{"rawMessageCount":0,"_score":1667230200000},{"rawMessageCount":0,"_score":1667230260000},{"rawMessageCount":0,"_score":1667230320000},{"rawMessageCount":0,"_score":1667230380000},{"rawMessageCount":0,"_score":1667230440000},{"rawMessageCount":0,"_score":1667230500000},{"rawMessageCount":0,"_score":1667230560000},{"rawMessageCount":0,"_score":1667230620000},{"rawMessageCount":0,"_score":1667230680000},{"rawMessageCount":0,"_score":1667230740000},{"rawMessageCount":0,"_score":1667230800000},{"rawMessageCount":0,"_score":1667230860000},{"rawMessageCount":0,"_score":1667230920000},{"rawMessageCount":0,"_score":1667230980000},{"rawMessageCount":0,"_score":1667231040000},{"rawMessageCount":0,"_score":1667231100000},{"rawMessageCount":0,"_score":1667231160000},{"rawMessageCount":0,"_score":1667231220000},{"rawMessageCount":0,"_score":1667231280000},{"rawMessageCount":0,"_score":1667231340000},{"rawMessageCount":0,"_score":1667231400000},{"rawMessageCount":0,"_score":1667231460000}] }</script>
+  <div class="container title">
+    <div class="item">
+      <h1>Chat Sentiment</h1>
+    </div>
+  </div>
+  <div class="container">
+    <div class="item">
+      <canvas id="sentimentChart" style="width:80vw;"></canvas>
+    </div>
+    <div class="item">
+      <canvas id="countChart" style="width:80vw; max-height: 200px;"></canvas>
+    </div>
+  </div>
+  <script>
+    // Remove end of chat when no messages from the end..
+    let endIdx = null
+    for (const [i, s] of Object.entries(Data.sentiments)) {
+      if (s.totalSentiment === undefined && endIdx === null) {
+        endIdx = i
+      }
+      if (s.totalSentiment !== undefined && endIdx !== null) {
+        endIdx = null
+      }
+    }
+    if (endIdx !== null) {
+      Data.sentiments.splice(endIdx)
+    }
+
+    window.Data = window.Data
+    const xValues = Data.sentiments.map(d => d._score);
+    const totalSentiment = Data.sentiments.map(d => d.totalSentiment)
+    const rawMessageCount = Data.sentiments.map(d => d.rawMessageCount)
+    const currentIntervalRawSentiment = Data.sentiments.map(d => d.rawSentimentSum !== undefined ? d.rawSentimentSum / d.rawMessageCount : undefined)
+
+    new Chart("sentimentChart", {
+      type: "scatter",
+      data: {
+        labels: xValues.map((v, idx) => new Date(v).toISOString() + ` [${rawMessageCount[idx]} messages]`),
+        datasets: [
+          { 
+            label: 'Raw Sentiment',
+            data: currentIntervalRawSentiment.map((v, idx) => ({ x: xValues[idx], y: v })),
+            pointRadius: 4,
+            pointBackgroundColor: "green",
+            borderColor: 'green',
+          },
+          { 
+            label: 'Normalized Sentiment',
+            data: totalSentiment.map((v, idx) => ({ x: xValues[idx], y: v })),
+            pointRadius: 8,
+            pointBackgroundColor: "orange",
+            borderColor: 'orange',
+          },
+      ] 
+      },
+      options: {
+        scales: {
+          x: {
+              ticks: {
+                  callback: function(value, index, ticks) {
+                      const d = new Date(value);
+                      return d.toISOString().match('T([^\.]+)\.')[1] // + ` (${rawMessageCount[index]})`
+                  }
+              }
+            }
+        }
+      }
+    });
+
+    new Chart("countChart", {
+      type: 'bar',
+      labels: xValues.map(v => new Date(v).toISOString()),
+      data: {
+        datasets: [{
+          label: 'Message Count',
+          data: rawMessageCount.map((v, idx) => ({ x: new Date(xValues[idx]).toISOString(), y: v }))
+        }]
+      },
+      options: {
+        scales: {
+          x: {
+              ticks: {
+                  callback: function(value, index, ticks) {
+                      const d = new Date(xValues[index]);
+                      return d.toISOString().match('T([^\.]+)\.')[1]
+                  }
+              }
+            }
+        }
+      }
+    })
+    </script>
+</body>
+</html>
