@@ -6,6 +6,9 @@
     <title>Chat Sentiment</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
+      body * {
+        font-family: monospace;
+      }
       .ver-container {
         margin: 20px 50px 50px 50px;
         display: flex;
@@ -24,7 +27,6 @@
         color: dodgerblue;
         font-weight: bold;
         margin: 0 5px;
-        font-family: monospace;
       }
       .canvas {
         max-height: 500px;
@@ -36,6 +38,55 @@
         font-size: 40px;
         font-weight: 500;
         color: #008000;
+      }
+      dialog > div > p {
+        text-align: left;
+      }
+      .dialog-title {
+        font-size: large;
+      }
+      dialog .odd {
+        background-color: azure;
+      }
+      dialog .even {
+        background-color: beige;
+      }
+
+      dialog {
+        position: fixed;
+        left: 50%;
+        right: auto;
+        padding: 30px;
+        transform: perspective(500px) translate(-50%, -50%);
+        background: linear-gradient(to bottom, #fff, #f4f4f4) #fff;
+        border: none;
+        border-radius: 3px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        transform-origin: 50% 50%;
+        animation: dialog 300ms cubic-bezier(0.3, 0, 0.1, 1.4) forwards 1;
+        will-change: transform, opacity;
+      }
+      @keyframes dialog {
+        from {
+          transform: perspective(500px) translate(-50%, -25%) rotateX(45deg) scale(0.1);
+          opacity: 0;
+        }
+      }
+      dialog::backdrop {
+        opacity: 0;
+        will-change: opacity;
+        cursor: default;
+        background: radial-gradient(circle at center, rgba(50, 50, 50, 0.5), rgba(0, 0, 0, 0.5));
+        animation: backdrop 500ms ease forwards 1;
+      }
+      @keyframes backdrop {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
       }
     </style>
   </head>
@@ -61,6 +112,7 @@
         <div class="item" id="contextId">1_1234567</div>
       </div>
     </div>
+
     <div class="ver-container">
       <div class="item">
         <canvas id="sentimentChart" style="width: 80vw"></canvas>
@@ -69,25 +121,28 @@
         <canvas id="countChart" style="width: 80vw; max-height: 200px"></canvas>
       </div>
     </div>
+
+    <dialog>
+      <div id="intervalTitle" class="dialog-title"></div>
+      <div id="messages"></div>
+      <button autofocus class="pure-button pure-button-primary">Close</button>
+    </dialog>
     <script>
       // Prepare data:
-      const sentiments = trimChatEnd(Data.sentiments);
-      const xValues = sentiments.map((d) => d._score);
-      const totalSentiment = sentiments.map((d) => d.totalSentiment);
-      const rawMessageCount = sentiments.map((d) => d.rawMessageCount);
+      const sentiments = trimChatEnd(Data.sentiments)
+      const xValues = sentiments.map((d) => d._score)
+      const totalSentiment = sentiments.map((d) => d.totalSentiment)
+      const rawMessageCount = sentiments.map((d) => d.rawMessageCount)
       const timeAndCount = xValues.map(
         (val, idx) => `${timeFromDate(val)} [${rawMessageCount[idx]} messages]`
-      );
+      )
       const currentIntervalRawSentiment = sentiments.map((d) =>
-        d.rawSentimentSum !== undefined
-          ? d.rawSentimentSum / d.rawMessageCount
-          : undefined
-      );
+        d.rawSentimentSum !== undefined ? d.rawSentimentSum / d.rawMessageCount : undefined
+      )
 
-      document.getElementById("partnerId").innerText =
-        Data.chatKey.split(":")[1];
-      document.getElementById("contextId").innerText =
-        Data.chatKey.split(":")[2];
+      // Set page sub title:
+      document.getElementById('partnerId').innerText = Data.chatKey.split(':')[1]
+      document.getElementById('contextId').innerText = Data.chatKey.split(':')[2]
 
       // Build charts:
       buildSentimentChart({
@@ -95,50 +150,51 @@
         currentIntervalRawSentiment,
         totalSentiment,
         messages: Data.messages,
-      });
-      buildCountChart({ timeAndCount, rawMessageCount });
+      })
+      buildCountChart({ timeAndCount, rawMessageCount })
 
-      function buildSentimentChart({
-        timeAndCount,
-        currentIntervalRawSentiment,
-        totalSentiment,
-        messages,
-      }) {
+      // Register dialog button:
+      const dialog = document.querySelector('dialog')
+      const closeButton = document.querySelector('dialog button')
+      let dialogMessages = document.getElementById('messages')
+      let intervalTitle = document.getElementById('intervalTitle')
+      closeButton.addEventListener('click', () => {
+        dialog.close()
+        dialogMessages.innerHTML = ''
+      })
+
+      function buildSentimentChart({ timeAndCount, currentIntervalRawSentiment, totalSentiment, messages }) {
         const onClick = (e) => {
-          const activePoints = sentimentChart.getElementsAtEventForMode(
-            e,
-            "point",
-            sentimentChart.options
-          );
-          if (!activePoints.length) return;
-          const msgIntervalEpoch = xValues[activePoints[0].index];
-          displayIntervalMessages(messages[msgIntervalEpoch]);
-        };
+          const activePoints = sentimentChart.getElementsAtEventForMode(e, 'point', sentimentChart.options)
+          if (!activePoints.length) return
+          const msgIntervalEpoch = xValues[activePoints[0].index]
+          displayIntervalMessages(msgIntervalEpoch, messages[msgIntervalEpoch])
+        }
 
-        const sentimentChart = new Chart("sentimentChart", {
-          type: "scatter",
+        const sentimentChart = new Chart('sentimentChart', {
+          type: 'scatter',
           data: {
             labels: timeAndCount,
             datasets: [
               {
-                label: "Raw Sentiment",
+                label: 'Raw Sentiment',
                 data: currentIntervalRawSentiment.map((v, idx) => ({
                   x: xValues[idx],
                   y: v,
                 })),
                 pointRadius: 4,
-                pointBackgroundColor: "green",
-                borderColor: "green",
+                pointBackgroundColor: 'green',
+                borderColor: 'green',
               },
               {
-                label: "Normalized Sentiment",
+                label: 'Normalized Sentiment',
                 data: totalSentiment.map((v, idx) => ({
                   x: xValues[idx],
                   y: v,
                 })),
                 pointRadius: 8,
-                pointBackgroundColor: "orange",
-                borderColor: "orange",
+                pointBackgroundColor: 'orange',
+                borderColor: 'orange',
               },
             ],
           },
@@ -146,25 +202,24 @@
             scales: {
               x: {
                 ticks: {
-                  callback: (value, index, ticks) =>
-                    timeFromDate(ticks[index].value),
+                  callback: (value, index, ticks) => timeFromDate(ticks[index].value),
                 },
               },
             },
             onClick,
           },
-        });
-        return sentimentChart;
+        })
+        return sentimentChart
       }
 
       function buildCountChart({ timeAndCount, rawMessageCount }) {
-        const countChart = new Chart("countChart", {
-          type: "bar",
+        const countChart = new Chart('countChart', {
+          type: 'bar',
           labels: timeAndCount,
           data: {
             datasets: [
               {
-                label: "Message Count",
+                label: 'Message Count',
                 data: rawMessageCount.map((v, idx) => ({
                   x: new Date(xValues[idx]).toISOString(),
                   y: v,
@@ -177,38 +232,50 @@
               x: {
                 ticks: {
                   callback: function (value, index, ticks) {
-                    return xValues[index] ? timeFromDate(xValues[index]) : "";
+                    return xValues[index] ? timeFromDate(xValues[index]) : ''
                   },
                 },
               },
             },
           },
-        });
-        return countChart;
+        })
+        return countChart
       }
 
       function timeFromDate(dateEpoch) {
-        return new Date(dateEpoch).toISOString().match("T([^\.]+)\.")[1];
+        return new Date(dateEpoch).toISOString().match('T([^\.]+)\.')[1]
       }
 
       function trimChatEnd(sentiments) {
-        let endIdx = null;
+        let endIdx = null
         for (const [i, s] of Object.entries(sentiments)) {
           if (s.totalSentiment === undefined && endIdx === null) {
-            endIdx = i;
+            endIdx = i
           }
           if (s.totalSentiment !== undefined && endIdx !== null) {
-            endIdx = null;
+            endIdx = null
           }
         }
         if (endIdx !== null) {
-          return sentiments.slice(0, endIdx);
+          return sentiments.slice(0, endIdx)
         }
-        return sentiments;
+        return sentiments
       }
 
-      function displayIntervalMessages(messages) {
-        alert(messages.map((m) => m.message).join("\n"));
+      function displayIntervalMessages(intervalEpoch, messages) {
+        const messageElements = messages
+          .map((m) => m.message)
+          .map((msg, idx) => {
+            const p = document.createElement('p')
+            p.className = idx % 2 ? 'odd' : 'even'
+            p.innerText = msg
+            return p
+          })
+        dialogMessages.append(...messageElements)
+        intervalTitle.innerText = `Interval ${timeFromDate(intervalEpoch)} | ${messages.length} message${
+          messages.length > 1 ? 's' : ''
+        }`
+        dialog.showModal()
       }
     </script>
   </body>
