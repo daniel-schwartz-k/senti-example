@@ -69,7 +69,7 @@
         transform-origin: 50% 50%;
         animation: dialog 300ms cubic-bezier(0.3, 0, 0.1, 1.4) forwards 1;
         will-change: transform, opacity;
-        max-height: 350px;
+        max-height: 310px;
       }
       @keyframes dialog {
         from {
@@ -1798,15 +1798,15 @@
     <script>
       // Prepare data:
       const sentiments = trimChatEnd(Data.sentiments);
-      const xValues = sentiments.map((d) => d._score);
+      const time = sentiments.map((d) => d._score);
       const totalSentiment = sentiments.map((d) => d.totalSentiment);
       const rawMessageCount = sentiments.map((d) => d.rawMessageCount);
-      const timeAndCount = xValues.map(
+      const timeAndCount = time.map(
         (val, idx) => `${timeFromDate(val)} [${rawMessageCount[idx]} messages]`
       );
       const currentIntervalRawSentiment = sentiments.map((d) =>
         d.rawSentimentSum !== undefined
-          ? d.rawSentimentSum / d.rawMessageCount
+          ? round(d.rawSentimentSum / d.rawMessageCount)
           : undefined
       );
 
@@ -1849,38 +1849,9 @@
             sentimentChart.options
           );
           if (!activePoints.length) return;
-
-          // Cleanup:
-          dialogMessages.innerHTML =
-            dialogMessages1.innerHTML =
-            dialogMessages2.innerHTML =
-              "";
-          intervalTitle.innerHTML =
-            intervalTitle1.innerHTML =
-            intervalTitle2.innerHTML =
-              "";
-
-          // Get interavl messages:
-          const idx0 = activePoints[0].index;
-          const messages0 = messages[xValues[idx0]];
-          const idx1 = idx0 - 1;
-          const messages1 =
-            xValues[idx1] === xValues[idx0] - 60_000 && messages[xValues[idx1]]
-              ? messages[xValues[idx1]]
-              : null;
-          const idx2 = idx0 - 2;
-          const messages2 =
-            xValues[idx2] === xValues[idx0] - 120_000 &&
-            messages1 &&
-            messages[xValues[idx2]]
-              ? messages[xValues[idx2]]
-              : null;
-          displayIntervalMessages(
-            xValues[idx0],
-            messages0,
-            messages1,
-            messages2
-          );
+          cleanDialog();
+          populateDialog(activePoints[0].index, messages);
+          dialog.showModal();
           dialog.scrollTo(0, 0);
         };
 
@@ -1892,7 +1863,7 @@
               {
                 label: "Raw Sentiment",
                 data: currentIntervalRawSentiment.map((v, idx) => ({
-                  x: xValues[idx],
+                  x: time[idx],
                   y: v,
                 })),
                 pointRadius: 4,
@@ -1902,7 +1873,7 @@
               {
                 label: "Normalized Sentiment",
                 data: totalSentiment.map((v, idx) => ({
-                  x: xValues[idx],
+                  x: time[idx],
                   y: v,
                 })),
                 pointRadius: 8,
@@ -1926,6 +1897,75 @@
         return sentimentChart;
       }
 
+      function cleanDialog() {
+        dialogMessages.innerHTML =
+          dialogMessages1.innerHTML =
+          dialogMessages2.innerHTML =
+            "";
+        intervalTitle.innerHTML =
+          intervalTitle1.innerHTML =
+          intervalTitle2.innerHTML =
+            "";
+      }
+
+      function populateDialog(idx0, messages) {
+        // Interval 0 (current):
+        const epoch0 = time[idx0];
+        const messages0 = messages[epoch0];
+        const msg0 = getIntervalMessageElements(epoch0, messages0);
+        const score0 = currentIntervalRawSentiment[idx0];
+        // const ns = sentiments[idx0].totalSentiment
+        if (msg0) {
+          dialogMessages.append(...msg0);
+          intervalTitle.innerText = `Current ${timeFromDate(
+            epoch0
+          )} | Score ${score0} | ${messages0.length} message${
+            messages.length > 1 ? "s" : ""
+          }`;
+        }
+
+        // Interval -1:
+        const idx1 = idx0 - 1;
+        const epoch1 = epoch0 - 60_000;
+        const messages1 =
+          time[idx1] === epoch1 && messages[time[idx1]]
+            ? messages[time[idx1]]
+            : null;
+        const msg1 = getIntervalMessageElements(epoch1, messages1);
+        const score1 = currentIntervalRawSentiment[idx1];
+        if (msg1) {
+          dialogMessages1.append(...msg1);
+          intervalTitle1.innerText = `Previous(1) ${timeFromDate(
+            epoch1
+          )}| Score ${score1} | ${messages1.length} message${
+            messages1.length > 1 ? "s" : ""
+          }`;
+        }
+
+        // Interval -2:
+        const epoch2 = epoch0 - 120_000;
+        const idx2 = idx0 - 2;
+        const messages2 =
+          time[idx2] === epoch2 && messages1 && messages[time[idx2]]
+            ? messages[time[idx2]]
+            : null;
+        const msg2 = getIntervalMessageElements(epoch2, messages2);
+        const score2 = currentIntervalRawSentiment[idx2];
+        if (msg2) {
+          dialogMessages2.append(...msg2);
+          intervalTitle2.innerText = `Previous(2) ${timeFromDate(
+            epoch2
+          )} | Score ${score2} | ${messages2.length} message${
+            messages2.length > 1 ? "s" : ""
+          }`;
+        }
+        // Build dialog:
+      }
+
+      function round(num) {
+        return Math.round((num + Number.EPSILON) * 100) / 100;
+      }
+
       function buildCountChart({ timeAndCount, rawMessageCount }) {
         const countChart = new Chart("countChart", {
           type: "bar",
@@ -1935,7 +1975,7 @@
               {
                 label: "Message Count",
                 data: rawMessageCount.map((v, idx) => ({
-                  x: new Date(xValues[idx]).toISOString(),
+                  x: new Date(time[idx]).toISOString(),
                   y: v,
                 })),
               },
@@ -1946,7 +1986,7 @@
               x: {
                 ticks: {
                   callback: function (value, index, ticks) {
-                    return xValues[index] ? timeFromDate(xValues[index]) : "";
+                    return time[index] ? timeFromDate(time[index]) : "";
                   },
                 },
               },
@@ -1986,39 +2026,6 @@
             return p;
           });
         return messageElements;
-      }
-
-      function displayIntervalMessages(
-        intervalEpoch,
-        messages,
-        messages1,
-        messages2
-      ) {
-        const epoch1 = intervalEpoch - 60_000;
-        const epoch2 = intervalEpoch - 120_000;
-        const msg = getIntervalMessageElements(intervalEpoch, messages);
-        const msg1 = getIntervalMessageElements(epoch1, messages1);
-        const msg2 = getIntervalMessageElements(epoch2, messages2);
-
-        if (msg) {
-          dialogMessages.append(...msg);
-          intervalTitle.innerText = `Current ${timeFromDate(intervalEpoch)} | ${
-            messages.length
-          } message${messages.length > 1 ? "s" : ""}`;
-        }
-        if (msg1) {
-          dialogMessages1.append(...msg1);
-          intervalTitle1.innerText = `Previous(1) ${timeFromDate(epoch1)} | ${
-            messages1.length
-          } message${messages1.length > 1 ? "s" : ""}`;
-        }
-        if (msg2) {
-          dialogMessages2.append(...msg2);
-          intervalTitle2.innerText = `Previous(2) ${timeFromDate(epoch2)} | ${
-            messages2.length
-          } message${messages2.length > 1 ? "s" : ""}`;
-        }
-        dialog.showModal();
       }
     </script>
   </body>
