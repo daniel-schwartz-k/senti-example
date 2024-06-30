@@ -45,6 +45,9 @@
       .dialog-title {
         font-size: large;
       }
+      .dialog-title:nth-child(n+2) {
+        margin-top: 55px;
+      }
       dialog .odd {
         background-color: azure;
       }
@@ -66,7 +69,7 @@
         transform-origin: 50% 50%;
         animation: dialog 300ms cubic-bezier(0.3, 0, 0.1, 1.4) forwards 1;
         will-change: transform, opacity;
-        max-height: 200px;
+        max-height: 350px;
       }
       @keyframes dialog {
         from {
@@ -126,14 +129,17 @@
     <dialog>
       <div id="intervalTitle" class="dialog-title"></div>
       <div id="messages"></div>
-      <button autofocus class="pure-button pure-button-primary">Close</button>
+      <div id="intervalTitle-1" class="dialog-title"></div>
+      <div id="messages-1"></div>
+      <div id="intervalTitle-2" class="dialog-title"></div>
+      <div id="messages-2"></div>
+      <button type="button" class="pure-button pure-button-primary">Close</button>
     </dialog>
     
     <script>
       // Prepare data:
       const sentiments = trimChatEnd(Data.sentiments)
       const xValues = sentiments.map((d) => d._score)
-      console.log("🚀 XXXXXX ~ xValues:", xValues[0])
       const totalSentiment = sentiments.map((d) => d.totalSentiment)
       const rawMessageCount = sentiments.map((d) => d.rawMessageCount)
       const timeAndCount = xValues.map(
@@ -160,10 +166,14 @@
       const dialog = document.querySelector('dialog')
       const closeButton = document.querySelector('dialog button')
       let dialogMessages = document.getElementById('messages')
+      let dialogMessages1 = document.getElementById('messages-1')
+      let dialogMessages2 = document.getElementById('messages-2')
       let intervalTitle = document.getElementById('intervalTitle')
+      let intervalTitle1 = document.getElementById('intervalTitle-1')
+      let intervalTitle2 = document.getElementById('intervalTitle-2')
       closeButton.addEventListener('click', () => {
         dialog.close()
-        dialogMessages.innerHTML = ''
+        dialogMessages.innerHTML = dialogMessages1.innerHTML = dialogMessages2.innerHTML = ''
       })
 
       function buildSentimentChart({ timeAndCount, currentIntervalRawSentiment, totalSentiment, messages }) {
@@ -171,7 +181,15 @@
           const activePoints = sentimentChart.getElementsAtEventForMode(e, 'point', sentimentChart.options)
           if (!activePoints.length) return
           const msgIntervalEpoch = xValues[activePoints[0].index]
-          displayIntervalMessages(msgIntervalEpoch, messages[msgIntervalEpoch])
+          const msgIntervalEpoch1 = xValues[activePoints[0].index - 1]
+          const msgIntervalEpoch2 = xValues[activePoints[0].index - 2]
+          displayIntervalMessages(
+            msgIntervalEpoch, 
+            messages[msgIntervalEpoch], 
+            messages[msgIntervalEpoch1], 
+            messages[msgIntervalEpoch2]
+          )
+          dialog.scrollTo(0, 0)
         }
 
         const sentimentChart = new Chart('sentimentChart', {
@@ -265,7 +283,8 @@
         return sentiments
       }
 
-      function displayIntervalMessages(intervalEpoch, messages) {
+      function getIntervalMessageElements(intervalEpoch, messages) {
+        if (!messages?.length) return
         const messageElements = messages
           .map((m) => m.message)
           .map((msg, idx) => {
@@ -274,10 +293,34 @@
             p.innerText = msg
             return p
           })
-        dialogMessages.append(...messageElements)
-        intervalTitle.innerText = `Interval ${timeFromDate(intervalEpoch)} | ${messages.length} message${
-          messages.length > 1 ? 's' : ''
-        }`
+        return messageElements
+      }
+
+      function displayIntervalMessages(intervalEpoch, messages, messages1, messages2) {
+        const epoch1 = intervalEpoch - 60_000
+        const epoch2 = intervalEpoch - 120_000
+        const msg = getIntervalMessageElements(intervalEpoch, messages)
+        const msg1 = getIntervalMessageElements(epoch1, messages1)
+        const msg2 = getIntervalMessageElements(epoch2, messages2)
+        
+        if (msg) {
+          dialogMessages.append(...msg)
+          intervalTitle.innerText = `Current ${timeFromDate(intervalEpoch)} | ${messages.length} message${
+            messages.length > 1 ? 's' : ''
+          }`
+        }
+        if (msg1) {
+          dialogMessages1.append(...msg1)
+          intervalTitle1.innerText = `Previous(1) ${timeFromDate(epoch1)} | ${messages1.length} message${
+            messages1.length > 1 ? 's' : ''
+          }`
+        }
+        if (msg2) {
+          dialogMessages2.append(...msg2)
+          intervalTitle2.innerText = `Previous(2) ${timeFromDate(epoch2)} | ${messages2.length} message${
+            messages2.length > 1 ? 's' : ''
+          }`
+        }
         dialog.showModal()
       }
     </script>
