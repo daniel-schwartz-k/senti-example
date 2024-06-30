@@ -48,10 +48,10 @@
       .dialog-title:nth-child(n+2) {
         margin-top: 55px;
       }
-      dialog .odd {
+      dialog p:nth-child(odd) {
         background-color: azure;
       }
-      dialog .even {
+      dialog p:nth-child(even) {
         background-color: beige;
       }
 
@@ -171,18 +171,18 @@
       let intervalTitle = document.getElementById('intervalTitle')
       let intervalTitle1 = document.getElementById('intervalTitle-1')
       let intervalTitle2 = document.getElementById('intervalTitle-2')
-      closeButton.addEventListener('click', () => {
-        dialog.close()
-        dialogMessages.innerHTML = dialogMessages1.innerHTML = dialogMessages2.innerHTML = ''
-      })
+      closeButton.addEventListener('click', () => dialog.close())
 
       function buildSentimentChart({ timeAndCount, currentIntervalRawSentiment, totalSentiment, messages }) {
         const onClick = (e) => {
           const activePoints = sentimentChart.getElementsAtEventForMode(e, 'point', sentimentChart.options)
           if (!activePoints.length) return
+
+          dialogMessages.innerHTML = dialogMessages1.innerHTML = dialogMessages2.innerHTML = ''
+          intervalTitle.innerHTML = intervalTitle1.innerHTML = intervalTitle2.innerHTML = ''
           const msgIntervalEpoch = xValues[activePoints[0].index]
-          const msgIntervalEpoch1 = xValues[activePoints[0].index - 1]
-          const msgIntervalEpoch2 = xValues[activePoints[0].index - 2]
+          const msgIntervalEpoch1 = xValues[activePoints[0].index - 1] === (msgIntervalEpoch - 60_000) ? xValues[activePoints[0].index - 1] : null
+          const msgIntervalEpoch2 = xValues[activePoints[0].index - 2] === (msgIntervalEpoch - 120_000) ? xValues[activePoints[0].index - 2] : null
           displayIntervalMessages(
             msgIntervalEpoch, 
             messages[msgIntervalEpoch], 
@@ -289,7 +289,6 @@
           .map((m) => m.message)
           .map((msg, idx) => {
             const p = document.createElement('p')
-            p.className = idx % 2 ? 'odd' : 'even'
             p.innerText = msg
             return p
           })
